@@ -1,0 +1,29 @@
+<ForceField>
+ <AtomTypes>
+  <Type name="CH4-C" class="CH4-C" element="C" mass="12.010"/>
+  <Type name="CH4-H" class="CH4-H" element="H" mass="1.008"/>
+ </AtomTypes>
+ <Residues>
+  <Residue name="CH4">
+   <Atom name="C"  type="CH4-C"/>
+   <Atom name="H1" type="CH4-H"/>
+   <Atom name="H2" type="CH4-H"/>
+   <Atom name="H3" type="CH4-H"/>
+   <Atom name="H4" type="CH4-H"/>
+   <Bond atomName1="C" atomName2="H1"/>
+   <Bond atomName1="C" atomName2="H2"/>
+   <Bond atomName1="C" atomName2="H3"/>
+   <Bond atomName1="C" atomName2="H4"/>
+  </Residue>
+ </Residues>
+ <HarmonicBondForce>
+  <Bond class1="CH4-C" class2="CH4-H" length="0.109690" k="282252.6"/>
+ </HarmonicBondForce>
+ <HarmonicAngleForce>
+  <Angle class1="CH4-H" class2="CH4-C" class3="CH4-H" angle="1.891064" k="329.950"/>
+ </HarmonicAngleForce>
+ <NonbondedForce coulomb14scale="0.833333333333" lj14scale="0.5">
+  <Atom type="CH4-C" charge="-0.1088" sigma="0.339967" epsilon="0.457730"/>
+  <Atom type="CH4-H" charge="0.0272" sigma="0.264953" epsilon="0.065689"/>
+ </NonbondedForce>
+</ForceField>
