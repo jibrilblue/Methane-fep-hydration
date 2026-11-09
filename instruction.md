@@ -27,7 +27,7 @@ Use these settings exactly. The reference value was produced with them.
 
 Sign and standard state: the hydration free energy is G(solute interacting with water) minus G(solute decoupled), so it is `f_0 - f_11` in units of kT, converted to kcal/mol. No standard-state correction is needed.
 
-Budget: 12 states of 500,000 steps is a multi-hour CPU job (4 cores). Time a short run first, run states so that completed ones are saved, and keep going if one state needs a rerun. You have 28,800 seconds in total.
+Budget: 12 states of 500,000 steps is a multi-hour CPU job (4 cores). Time a short run first, run states so that completed ones are saved, and keep going if one state needs a rerun. 
 
 **Output**
 
@@ -54,7 +54,8 @@ Write two files to `/app/output/`.
   "timestep_fs": 2.0,
   "nonbonded_cutoff_nm": 0.9,
   "lambda_electrostatics": [],
-
+  "lambda_sterics": []
+}
 · overlap_matrix is the 12x12 MBAR overlap matrix (MBAR.compute_overlap()["matrix"]) as nested lists.
 · lambda_electrostatics and lambda_sterics are the 12 values you used, in state order.
 · The reported free energy, uncertainty and overlap matrix must be the MBAR result computed from mbar_input.npz.
@@ -62,5 +63,3 @@ Write two files to `/app/output/`.
 The result is checked against a reference value and tolerance that you cannot see. Do not use online solutions or hints specific to this task.
 
 You have 28800 seconds to complete this task. Do not cheat by using online solutions or hints specific to this task.
-  "lambda_sterics": []
-}
