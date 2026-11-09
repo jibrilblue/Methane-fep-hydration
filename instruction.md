@@ -1,13 +1,13 @@
 Calculate the hydration free energy of methane (CH4) with OpenMM, openmmtools and MBAR, using alchemical decoupling of the solute from TIP3P water.
 
-## Inputs
+**Inputs**
 
 `/app/inputs/` contains the solute:
 
 - `methane.pdb`: methane, residue name `CH4`.
 - `methane.xml`: an OpenMM force-field file for methane (GAFF `c3`/`hc` parameters, AM1-BCC charges). Load it together with `amber14-all.xml` and `amber14/tip3p.xml`.
 
-## Protocol
+**Protocol**
 
 Use these settings exactly. The reference value was produced with them.
 
@@ -29,7 +29,7 @@ Sign and standard state: the hydration free energy is G(solute interacting with 
 
 Budget: 12 states of 500,000 steps is a multi-hour CPU job (4 cores). Time a short run first, run states so that completed ones are saved, and keep going if one state needs a rerun. You have 28,800 seconds in total.
 
-## Output
+**Output**
 
 Write two files to `/app/output/`.
 
