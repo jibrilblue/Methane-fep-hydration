@@ -54,5 +54,13 @@ Write two files to `/app/output/`.
   "timestep_fs": 2.0,
   "nonbonded_cutoff_nm": 0.9,
   "lambda_electrostatics": [],
+
+· overlap_matrix is the 12x12 MBAR overlap matrix (MBAR.compute_overlap()["matrix"]) as nested lists.
+· lambda_electrostatics and lambda_sterics are the 12 values you used, in state order.
+· The reported free energy, uncertainty and overlap matrix must be the MBAR result computed from mbar_input.npz.
+
+The result is checked against a reference value and tolerance that you cannot see. Do not use online solutions or hints specific to this task.
+
+You have 28800 seconds to complete this task. Do not cheat by using online solutions or hints specific to this task.
   "lambda_sterics": []
 }
