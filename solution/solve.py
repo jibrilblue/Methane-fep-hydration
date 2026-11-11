@@ -131,7 +131,7 @@ def main():
     ap.add_argument("--workdir", default="/app/work")
     ap.add_argument("--steps", type=int, default=25_000)
     ap.add_argument("--eq-steps", type=int, default=5_000)
-    ap.add_argument("--sample-every", type=int, default=500)
+    ap.add_argument("--sample-every", type=int, default=250)
     args = ap.parse_args()
     os.makedirs(args.outdir, exist_ok=True)
     os.makedirs(args.workdir, exist_ok=True)
@@ -159,6 +159,11 @@ def main():
             args.eq_steps, args.steps, args.sample_every, first=(k == 0),
         )
         np.savez(ckpt, pos=pf, box=bf, final_pos=positions, final_box=box)
+
+    pdb_out = os.path.join(args.outdir, "final_structure.pdb")
+    log(f"writing final structure to {pdb_out}")
+    with open(pdb_out, "w") as f:
+        app.PDBFile.writeFile(modeller.topology, positions * unit.nanometer, f)
 
     pos_all, box_all, owner = [], [], []
     for k in range(K):
@@ -212,7 +217,7 @@ def main():
     }
     with open(os.path.join(args.outdir, "fep.json"), "w") as f:
         json.dump(out, f, indent=2)
-    log("wrote fep.json and mbar_input.npz")
+    log("wrote fep.json, mbar_input.npz, and final_structure.pdb")
 
 if __name__ == "__main__":
     main()
