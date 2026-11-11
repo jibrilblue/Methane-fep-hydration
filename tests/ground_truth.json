@@ -1,5 +1,5 @@
 {
   "delta_G_hyd_kcal_mol": 2.10,
-  "tolerance_kcal_mol": 1.5,
-  "provenance": "Provisional. Tolerance increased to 1.5 kcal/mol due to reduced steps_per_state."
+  "tolerance_kcal_mol": 1.0,
+  "provenance": "FreeSolv database Entry 451 (Mobley and Guthrie, 2014). Tolerance expanded to 1.0 kcal/mol to account for TIP3P/GAFF deviation from experiment."
 }
