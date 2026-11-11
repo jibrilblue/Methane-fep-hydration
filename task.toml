@@ -1,9 +1,9 @@
 schema_version = "1.4"
 
-artifacts = ["/app/output/fep.json", "/app/output/mbar_input.npz"]
+artifacts = ["/app/output/fep.json", "/app/output/mbar_input.npz", "/app/output/final_structure.pdb"]
 
 [task]
-name = "afterquery/methane-fep-hydration"
+name = "ne-benchmark/methane-fep-hydration"
 description = "Calculate the free energy of hydration of methane with OpenMM, openmmtools alchemical decoupling and MBAR."
 authors = [{ name = "Jibril Suleiman Lere", email = "jibrilesslere@gmail.com" }]
 keywords = ["MD", "Free Energy", "FEP", "OpenMM", "MBAR"]
@@ -23,10 +23,6 @@ category = "Science"
 subcategory = "Chemistry"
 tags = ["MD", "Free Energy", "FEP", "OpenMM", "MBAR"]
 expert_time_estimate_hours = 6.0
-relevant_experience = "Extensive experience in computational chemistry, molecular dynamics, and alchemical free energy calculations using OpenMM."
-difficulty_explanation = "Alchemical decoupling has to be set up correctly: soft-core sterics, a lambda schedule that keeps neighbouring states overlapping (electrostatics off before sterics), reduced potentials evaluated at every state for every sample, decorrelation, and MBAR with the right sign convention. The run is a multi-hour CPU job, so the agent must also budget time and handle failures."
-solution_explanation = "Solvate methane (GAFF-type parameters supplied in /app/inputs) in TIP3P with Amber14, build the alchemical system with openmmtools, run 12 lambda states (electrostatics off first, then sterics) for 500,000 steps each at 298.15 K / 1 atm with seed 42, evaluate reduced potentials at all states, subsample by statistical inefficiency, and run MBAR to get the hydration free energy, uncertainty and overlap matrix."
-verification_explanation = "The verifier checks the output schema and declared protocol, and checks the lambda schedule. It re-runs MBAR on the submitted reduced-potential matrix and requires the reported free energy, uncertainty and overlap matrix to match the recomputation. It checks the overlap matrix and a plausible uncertainty range. Finally it compares the free energy to the reference within the tolerance."
 
 [verifier]
 timeout_sec = 1800.0
