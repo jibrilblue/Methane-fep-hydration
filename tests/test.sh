@@ -1,6 +1,5 @@
 #!/bin/bash
 mkdir -p /logs/verifier
-
 pytest /tests/test_fep.py -v -rA --json-ctrf=/logs/verifier/ctrf.json
 status=$?
 
