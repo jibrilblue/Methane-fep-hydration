@@ -3,7 +3,7 @@ schema_version = "1.4"
 artifacts = ["/app/output/fep.json", "/app/output/mbar_input.npz", "/app/output/final_structure.pdb"]
 
 [task]
-name = "ne-benchmark/methane-fep-hydration"
+name = "afterquery/methane-fep-hydration"
 description = "Calculate the free energy of hydration of methane with OpenMM, openmmtools alchemical decoupling and MBAR."
 authors = [{ name = "Jibril Suleiman Lere", email = "jibrilesslere@gmail.com" }]
 keywords = ["MD", "Free Energy", "FEP", "OpenMM", "MBAR"]
@@ -23,6 +23,10 @@ category = "Science"
 subcategory = "Chemistry"
 tags = ["MD", "Free Energy", "FEP", "OpenMM", "MBAR"]
 expert_time_estimate_hours = 6.0
+relevant_experience = "Extensive experience in computational chemistry, molecular dynamics, and alchemical free energy calculations using OpenMM."
+difficulty_explanation = "Computing solvation free energies via alchemical decoupling is a core workflow in computational drug discovery. The difficulty lies in setting up the alchemical decoupling correctly: choosing a soft-core potential, ensuring a lambda schedule that keeps neighbouring states overlapping, evaluating reduced potentials correctly, and using MBAR with the right sign convention. The strict anti-cheat verification forces the agent to genuinely execute the full multi-state pipeline."
+solution_explanation = "The reference solution executes a full 12-state OpenMM simulation. It checkpoints per state, subsamples by statistical inefficiency, and applies pymbar to compute the final free energy. The script uses a fixed random seed for reproducibility and writes the final solvated system to final_structure.pdb."
+verification_explanation = "The verifier parses the output PDB to ensure the methane solute and solvent box are physically present. It re-runs MBAR on the submitted u_kn matrix to prevent hardcoding. It enforces statistical gates: minimum neighbour overlap > 0.03, uncertainty in [0.01, 0.5] kcal/mol, and at least 8 decorrelated samples per state. Finally, it compares the free energy to the reference within 1.0 kcal/mol."
 
 [verifier]
 timeout_sec = 1800.0
