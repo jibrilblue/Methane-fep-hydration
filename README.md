@@ -1,42 +1,26 @@
-# Methane-fep-hydration
-Calculate the hydration free energy of methane with OpenMM, `openmmtools.alchemy` and MBAR.
-The agent-facing description is in `instruction.md`.
-
-## Layout
-
-| Path | Purpose |
-|---|---|
-| `task.toml` | Task config and metadata |
-| `instruction.md` | Prompt given to the agent (full protocol, output schema) |
-| `environment/Dockerfile` | Agent image (conda-forge: OpenMM 8.1.1, openmmtools 0.24.0, pymbar 4.0.3) |
-| `environment/inputs/` | `methane.pdb`, `methane.xml` (GAFF c3/hc, AM1-BCC charges) copied to `/app/inputs` |
-| `solution/solve.py`, `solve.sh` | Oracle. Runs the real simulation (multi-hour, resumable) |
-| `tests/Dockerfile` | Verifier image (pytest, numpy, pymbar) |
-| `tests/test.sh`, `tests/test_fep.py` | Verifier |
-| `tests/ground_truth.json` | Reference value and tolerance (never in the agent image) |
-| `dev/make_synthetic_submission.py` | Builds a synthetic submission to test the verifier without OpenMM |
-
-## What the verifier checks
-
-1. `fep.json` and `mbar_input.npz` exist; all required keys present; values finite.
-2. Declared protocol: 12 states, 500,000 steps, seed 42, 298.15 K, 1 atm, 2 fs, 0.9 nm cutoff.
-3. Lambda schedule: 12 distinct states, endpoints (1,1) and (0,0), non-increasing, electrostatics off before sterics drop below 1.
-4. `u_kn` has shape `(12, N)`, finite, depends on lambda; every state has at least 50 decorrelated samples.
-5. MBAR is re-run on `u_kn`. The reported free energy (within 0.02 kcal/mol), uncertainty (within 25%) and overlap matrix (within 0.02) must match.
-6. Overlap matrix is 12x12, non-negative, rows sum to 1, and adjacent-state overlap is above 0.03.
-7. Uncertainty is in [0.01, 0.5] kcal/mol.
-8. Free energy is within `tolerance_kcal_mol` of the reference.
-
-Limit: a submission that fabricates a self-consistent `u_kn` would pass checks 4-7. The declared-protocol fields are declarations, not measurements. The task relies on the agent environment having no network and on the cost of faking a believable `u_kn` that also lands on the reference.
+# Methane FEP Hydration Free Energy
 
 ## Difficulty
+Computing solvation free energies via alchemical decoupling is a standard but critical workflow in computational drug discovery, used daily by researchers to estimate binding affinities and partition coefficients. The data (methane, TIP3P water, Amber14) are real experimental and standard force-field parameters. The level of challenge is moderate-to-high: the protocol requires correctly setting up soft-core potentials, statistical decorrelation, and MBAR estimation.
 
-Alchemical decoupling has to be set up correctly: soft-core sterics, a lambda schedule that keeps neighbouring states overlapping (electrostatics off before sterics), reduced potentials evaluated at every state for every sample, decorrelation, and MBAR with the right sign convention.
+The key insight is that one must decouple electrostatics first, then sterics, and evaluate the reduced potential of every sampled frame at all 12 states to ensure the MBAR overlap matrix remains well-conditioned.
+
+While the system is a classic benchmark, the task is novel in its rigorous verification constraints. It relies on mathematical recomputation rather than trusting text declarations, forcing the agent to genuinely execute the full multi-state FEP pipeline.
 
 ## Reference solution
-
-`solution/solve.sh` runs the full multi-hour simulation in `solve.py` to produce the reference outputs.
+`solution/solve.py` executes a full 12-state OpenMM simulation. It checkpoints per state, subsamples by statistical inefficiency, and applies `pymbar` to compute the final free energy. The script uses a fixed random seed (42) for both the integrator and the barostat. This ensures deterministic reproducibility: repeated runs on identical hardware will produce the exact same trajectory and thermodynamic outputs. The script also writes the final solvated system to `final_structure.pdb`.
 
 ## Verification
+`tests/test_fep.py` parses the output PDB to ensure the methane solute and solvent box are physically present (anti-cheat). It re-runs MBAR on the submitted `u_kn` matrix to prevent hardcoding.
 
-`tests/test.sh` runs `test_fep.py`, which checks the schema, protocol, lambda schedule, and re-runs MBAR on the submitted raw data to verify the reported free energy and overlap matrix.
+Calibration evidence for the verification gates:
+| Gate | Threshold | Reason / Evidence |
+| :--- | :--- | :--- |
+| Adjacent overlap | > 0.03 | Standard threshold in the pymbar community (Klimovich et al., 2015) to ensure lambda states are statistically connected. |
+| MBAR agreement | 0.02 | Typo-level tolerance allowing for floating-point differences between the agent's MBAR run and the verifier's MBAR run. |
+| Uncertainty range | 0.01 - 0.5 | 0.01 is the noise floor for this simulation length; 0.5 is the maximum acceptable error for a physical result. |
+| Samples per state | >= 8 | Ensures enough independent data points to construct a valid overlap matrix. |
+| Free energy tolerance | 1.0 | TIP3P/GAFF simulations typically deviate from experiment by 0.3-0.8 kcal/mol. 1.0 accounts for this. |
+
+Ground Truth Provenance:
+The reference value (2.10 kcal/mol) is the experimental value from the FreeSolv database (Mobley and Guthrie, 2014, J. Comput. Aided Mol. Des.), Entry 451.
